@@ -50,20 +50,20 @@ module Danger
         it "should install synx if needed" do
           allow(@synx).to receive(:`).with('which synx').and_return('synx not found')
           expect(@synx).to receive(:`).with('brew install synx')
-          @synx.precheck_synx_installation
+          @synx.precheck_synx_installation?
         end
 
         it "should upgrade synx if needed" do
           allow(@synx).to receive(:`).with('which synx').and_return('/bin/synx')
           allow(@synx).to receive(:`).with('synx --version').and_return('Synx 0.2.1')
           expect(@synx).to receive(:`).with('brew upgrade synx')
-          @synx.precheck_synx_installation
+          @synx.precheck_synx_installation?
         end
 
         it "should report whether synx is installed correctly" do
           allow(@synx).to receive(:`).with('which synx').and_return('/bin/synx')
           allow(@synx).to receive(:`).with('synx --version').and_return('Synx 0.2.2')
-          expect(@synx.precheck_synx_installation).to be_truthy
+          expect(@synx.precheck_synx_installation?).to be_truthy
         end
       end
 

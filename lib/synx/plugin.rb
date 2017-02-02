@@ -20,10 +20,15 @@ module Danger
     # @return   [Array<String>]
     #
     def ensure_clean_structure
+      unless precheck_synx_installation?
+        fail "synx > 0.2.1 is not in the user's PATH and has failed to install with brew"
+        return
+      end
+
       warn 'Trying to merge code on a Monday' if Date.today.wday == 1
     end
 
-    def precheck_synx_installation
+    def precheck_synx_installation?
       if not synx_installed?
         `brew install synx`
       elsif not synx_required_version?
