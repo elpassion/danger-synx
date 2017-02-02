@@ -67,6 +67,36 @@ module Danger
         end
       end
 
+      describe :synx_issues do
+        before do
+          allow(@synx).to receive(:`).with('which synx').and_return('/bin/synx')
+          allow(@synx).to receive(:`).with('synx --version').and_return('Synx 0.2.2')
+        end
+
+        it "should return a list of issues found in all projects" do
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj', 'B.xcodeproj'])
+          allow(@synx.git).to receive(:added_files).and_return([])
+          expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return("warning: Warning.\nwarning: Another warning.\n")
+          expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return("warning: Issue.\n")
+          expect(@synx.synx_issues).to match_array(['Warning.', 'Another warning.', 'Issue.'])
+        end
+      end
+
+      describe :ensure_clean_structure do
+        before do
+          allow(@synx).to receive(:`).with('which synx').and_return('/bin/synx')
+          allow(@synx).to receive(:`).with('synx --version').and_return('Synx 0.2.2')
+        end
+
+        it "should trigger synx for modified project files" do
+          allow(@synx.git).to receive(:modified_files).and_return(['Project/Sources/AppDelegate.swift', 'Project/Project.xcodeproj'])
+          allow(@synx.git).to receive(:added_files).and_return(['Other Project/Other Project.xcodeproj', 'Other Project/Resources/image.png'])
+          expect(@synx).to receive(:`).with('synx -w warning "Project/Project.xcodeproj"').and_return('')
+          expect(@synx).to receive(:`).with('synx -w warning "Other Project/Other Project.xcodeproj"').and_return('')
+          @synx.ensure_clean_structure
+        end
+      end
+
     end
   end
 end

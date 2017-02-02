@@ -2,7 +2,7 @@ module Danger
   # Enforces that .xcodeproj structure is tidy.
   # It wraps around [Synx](https://github.com/venmo/synx) tool to perform the check.
   #
-  # @example Ensure that the project is synchronized
+  # @example Ensure that all added / modified project files are synchronized
   #
   #          danger_synx.ensure_clean_structure
   #
@@ -11,13 +11,10 @@ module Danger
   #
   class DangerSynx < Plugin
 
-    # An attribute that you can read/write from your Dangerfile
+    # Ensures clean project structure. Runs Synx on all .xcodeproj
+    # files that where either added or modified.
     #
-    # @return   [Array<String>]
-    attr_accessor :my_attribute
-
-    # A method that you can call from your Dangerfile
-    # @return   [Array<String>]
+    # @return   [void]
     #
     def ensure_clean_structure
       unless precheck_synx_installation?
@@ -25,9 +22,15 @@ module Danger
         return
       end
 
-      warn 'Trying to merge code on a Monday' if Date.today.wday == 1
+      synx_issues
     end
 
+    # Checks whether Synx in a correct version is installed in the system.
+    # If not, tries to recover by installing it.
+    # Returns true if Synx is present or installation was successful.
+    #
+    # @return bool
+    #
     def precheck_synx_installation?
       if not synx_installed?
         `brew install synx`
@@ -38,15 +41,46 @@ module Danger
       synx_installed? and synx_required_version?
     end
 
+    # Tests whether Synx is already installed.
+    #
+    # @return bool
+    #
     def synx_installed?
       `which synx`.strip.start_with? '/'
     end
 
+    # Tests whether Synx meets > 0.2.1 version requirement.
+    #
+    # @return bool
+    #
     def synx_required_version?
       if match = `synx --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
         major, minor, patch = match.captures
         Integer(major) >= 0 and Integer(minor) >= 2 and Integer(patch) > 1
       end
+    end
+
+    # Triggers Synx on all projects that were modified or added
+    # to the project. Returns accumulated list of issues
+    # for those projects.
+    #
+    # @return [String]
+    #
+    def synx_issues
+      (git.modified_files + git.added_files).select { |f| f.include? '.xcodeproj' }.reduce([]) { |i, f| i + synx_project(f) }
+    end
+
+    # Triggers Synx in a dry-run mode on a project file.
+    # Parses output and returns a list of issues.
+    #
+    # @param  project_path  String
+    #         Path of .xcodeproj to Synx
+    #
+    # @return [String]
+    #
+    def synx_project(project_path)
+      output = `synx -w warning "#{project_path}"`.lines
+      output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| o.slice(9, o.size - 9) }
     end
 
   end
