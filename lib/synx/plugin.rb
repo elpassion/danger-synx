@@ -22,7 +22,7 @@ module Danger
         return
       end
 
-      synx_issues
+      generate_output synx_issues
     end
 
     # Checks whether Synx in a correct version is installed in the system.
@@ -82,6 +82,11 @@ module Danger
       output = `synx -w warning "#{project_path}"`.lines
       output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| o.slice(9, o.size - 9) }
     end
+
+    def generate_output(issues)
+      warn("Synx detected #{issues.size} structural issue(s)")
+    end
+    private :generate_output
 
   end
 end

@@ -95,6 +95,15 @@ module Danger
           expect(@synx).to receive(:`).with('synx -w warning "Other Project/Other Project.xcodeproj"').and_return('')
           @synx.ensure_clean_structure
         end
+
+        it "should output a warning with number of issues" do
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj', 'B.xcodeproj'])
+          allow(@synx.git).to receive(:added_files).and_return([])
+          expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return("warning: Warning.\nwarning: Another warning.\n")
+          expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return("warning: Issue.\n")
+          expect(@synx).to receive(:warn).with('Synx detected 3 structural issue(s)')
+          @synx.ensure_clean_structure
+        end
       end
 
     end
