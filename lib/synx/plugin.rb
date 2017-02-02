@@ -23,6 +23,16 @@ module Danger
       warn 'Trying to merge code on a Monday' if Date.today.wday == 1
     end
 
+    def precheck_synx_installation
+      if not synx_installed?
+        `brew install synx`
+      elsif not synx_required_version?
+        `brew upgrade synx`
+      end
+
+      synx_installed? and synx_required_version?
+    end
+
     def synx_installed?
       `which synx`.strip.start_with? '/'
     end
