@@ -26,5 +26,13 @@ module Danger
     def synx_installed?
       `which synx`.strip.start_with? '/'
     end
+
+    def synx_required_version?
+      if match = `synx --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
+        major, minor, patch = match.captures
+        Integer(major) >= 0 and Integer(minor) >= 2 and Integer(patch) > 1
+      end
+    end
+
   end
 end
