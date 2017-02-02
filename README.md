@@ -2,4 +2,4 @@
 
 A Danger plugin for Synx.
 
-**WORK IN PROGRESS**
+# WORK IN PROGRESS
