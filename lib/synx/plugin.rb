@@ -1,20 +1,13 @@
 module Danger
-  # This is your plugin class. Any attributes or methods you expose here will
-  # be available from within your Dangerfile.
+  # Enforces that .xcodeproj structure is tidy.
+  # It wraps around [Synx](https://github.com/venmo/synx) tool to perform the check.
   #
-  # To be published on the Danger plugins site, you will need to have
-  # the public interface documented. Danger uses [YARD](http://yardoc.org/)
-  # for generating documentation from your plugin source, and you can verify
-  # by running `danger plugins lint` or `bundle exec rake spec`.
+  # @example Ensure that the project is synchronized
   #
-  # You should replace these comments with a public description of your library.
+  #          danger_synx.ensure_clean_structure
   #
-  # @example Ensure people are well warned about merging on Mondays
-  #
-  #          my_plugin.warn_on_mondays
-  #
-  # @see  Jakub Turek/danger-synx
-  # @tags monday, weekends, time, rattata
+  # @see  turekj/danger-synx
+  # @tags synx, xcodeproj
   #
   class DangerSynx < Plugin
 
@@ -26,8 +19,20 @@ module Danger
     # A method that you can call from your Dangerfile
     # @return   [Array<String>]
     #
-    def warn_on_mondays
+    def ensure_clean_structure
       warn 'Trying to merge code on a Monday' if Date.today.wday == 1
     end
+
+    def synx_installed?
+      `which synx`.strip.start_with? '/'
+    end
+
+    def synx_required_version?
+      if match = `synx --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
+        major, minor, patch = match.captures
+        Integer(major) >= 0 and Integer(minor) >= 2 and Integer(patch) > 1
+      end
+    end
+
   end
 end

@@ -6,34 +6,44 @@ module Danger
       expect(Danger::DangerSynx.new(nil)).to be_a Danger::Plugin
     end
 
-    #
-    # You should test your custom attributes and methods here
-    #
     describe 'with Dangerfile' do
       before do
         @dangerfile = testing_dangerfile
-        @my_plugin = @dangerfile.synx
+        @synx = @dangerfile.synx
       end
 
-      # Some examples for writing tests
-      # You should replace these with your own.
+      describe :synx_installed? do
+        it "reports that synx is not installed in zsh shell" do
+          allow(@synx).to receive(:`).with('which synx').and_return('synx not found')
+          expect(@synx.synx_installed?).to be_falsy
+        end
 
-      it "Warns on a monday" do
-        monday_date = Date.parse("2016-07-11")
-        allow(Date).to receive(:today).and_return monday_date
+        it "reports that synx is not installed in sh shell" do
+          allow(@synx).to receive(:`).with('which synx').and_return('')
+          expect(@synx.synx_installed?).to be_falsy
+        end
 
-        @my_plugin.warn_on_mondays
-
-        expect(@dangerfile.status_report[:warnings]).to eq(["Trying to merge code on a Monday"])
+        it "reports that synx is installed" do
+          allow(@synx).to receive(:`).with('which synx').and_return('/bin/synx')
+          expect(@synx.synx_installed?).to be_truthy
+        end
       end
 
-      it "Does nothing on a tuesday" do
-        monday_date = Date.parse("2016-07-12")
-        allow(Date).to receive(:today).and_return monday_date
+      describe :synx_required_version? do
+        it "reports that 0.2.1 synx version is too old" do
+          allow(@synx).to receive(:`).with('synx --version').and_return('Synx 0.2.1')
+          expect(@synx.synx_required_version?).to be_falsy
+        end
 
-        @my_plugin.warn_on_mondays
+        it "reports that 0.2.2 synx version is good" do
+          allow(@synx).to receive(:`).with('synx --version').and_return('Synx 0.2.2')
+          expect(@synx.synx_required_version?).to be_truthy
+        end
 
-        expect(@dangerfile.status_report[:warnings]).to eq([])
+        it "handles malformed output for synx version" do
+          allow(@synx).to receive(:`).with('synx --version').and_return('Not even a version')
+          expect(@synx.synx_required_version?).to be_falsy
+        end
       end
 
     end
