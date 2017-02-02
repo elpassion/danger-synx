@@ -78,7 +78,7 @@ module Danger
           allow(@synx.git).to receive(:added_files).and_return([])
           expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return("warning: Warning.\nwarning: Another warning.\n")
           expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return("warning: Issue.\n")
-          expect(@synx.synx_issues).to match_array(['Warning.', 'Another warning.', 'Issue.'])
+          expect(@synx.synx_issues).to match_array([['A.xcodeproj', 'Warning.'], ['A.xcodeproj', 'Another warning.'], ['B.xcodeproj', 'Issue.']])
         end
       end
 
@@ -103,6 +103,30 @@ module Danger
           expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return("warning: Issue.\n")
           expect(@synx).to receive(:warn).with('Synx detected 3 structural issue(s)')
           @synx.ensure_clean_structure
+        end
+
+        it "should not output markdown when there are no issues" do
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj', 'B.xcodeproj'])
+          allow(@synx.git).to receive(:added_files).and_return([])
+          expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return('')
+          expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return('')
+          expect(@synx).to_not receive(:markdown)
+          @synx.ensure_clean_structure
+        end
+
+        it "should output table with issues as markdown" do
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj', 'B.xcodeproj'])
+          allow(@synx.git).to receive(:added_files).and_return([])
+          expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return("warning: Warning.\nwarning: Another warning.\n")
+          expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return("warning: Issue.\n")
+
+          @synx.ensure_clean_structure
+          output = @synx.status_report[:markdowns].first.to_s
+
+          expect(output).to include('Synx structural issues')
+          expect(output).to include('A.xcodeproj | Warning.')
+          expect(output).to include('A.xcodeproj | Another warning.')
+          expect(output).to include('B.xcodeproj | Issue.')
         end
       end
 

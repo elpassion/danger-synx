@@ -29,7 +29,7 @@ module Danger
     # If not, tries to recover by installing it.
     # Returns true if Synx is present or installation was successful.
     #
-    # @return bool
+    # @return [bool]
     #
     def precheck_synx_installation?
       if not synx_installed?
@@ -43,7 +43,7 @@ module Danger
 
     # Tests whether Synx is already installed.
     #
-    # @return bool
+    # @return [bool]
     #
     def synx_installed?
       `which synx`.strip.start_with? '/'
@@ -51,7 +51,7 @@ module Danger
 
     # Tests whether Synx meets > 0.2.1 version requirement.
     #
-    # @return bool
+    # @return [bool]
     #
     def synx_required_version?
       if match = `synx --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
@@ -64,7 +64,7 @@ module Danger
     # to the project. Returns accumulated list of issues
     # for those projects.
     #
-    # @return [String]
+    # @return [Array<(String, String)>]
     #
     def synx_issues
       (git.modified_files + git.added_files).select { |f| f.include? '.xcodeproj' }.reduce([]) { |i, f| i + synx_project(f) }
@@ -73,19 +73,43 @@ module Danger
     # Triggers Synx in a dry-run mode on a project file.
     # Parses output and returns a list of issues.
     #
-    # @param  project_path  String
+    # @param  [String] project_path
     #         Path of .xcodeproj to Synx
     #
-    # @return [String]
+    # @return [(String, String)]
     #
     def synx_project(project_path)
+      name = project_name project_path
       output = `synx -w warning "#{project_path}"`.lines
-      output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| o.slice(9, o.size - 9) }
+      output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| [name, strip_prefix(o)] }
     end
+
+    def project_name(project_path)
+      project_path.split('/').select { |p| p.end_with? '.xcodeproj' }.first
+    end
+
+    private :project_name
+
+    def strip_prefix(output_line)
+      output_line.slice(9, output_line.size - 9)
+    end
+
+    private :strip_prefix
 
     def generate_output(issues)
       warn("Synx detected #{issues.size} structural issue(s)")
+
+      if issues.count > 0
+        message = "### Synx structural issues\n\n"
+
+        issues.each do |(project, issue)|
+          message << "#{project} | #{issue}"
+        end
+
+        markdown message
+      end
     end
+
     private :generate_output
 
   end
