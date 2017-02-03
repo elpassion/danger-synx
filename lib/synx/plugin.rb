@@ -73,19 +73,28 @@ module Danger
     # Triggers Synx in a dry-run mode on a project file.
     # Parses output and returns a list of issues.
     #
-    # @param  [String] project_path
-    #         Path of .xcodeproj to Synx
+    # @param  [String] modified_project_file_path
+    #         Path under .xcodeproj to Synx
     #
     # @return [(String, String)]
     #
-    def synx_project(project_path)
-      name = project_name project_path
-      output = `synx -w warning "#{project_path}"`.lines
+    def synx_project(modified_project_file_path)
+      path = project_path modified_project_file_path
+      name = project_name path
+      output = `synx -w warning "#{path}"`.lines
       output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| [name, strip_prefix(o)] }
     end
 
+    def project_path(modified_project_file_path)
+      if match = modified_project_file_path.match('(.+\.xcodeproj)*+')
+        return match[0]
+      end
+    end
+
+    private :project_path
+
     def project_name(project_path)
-      project_path.split('/').select { |p| p.end_with? '.xcodeproj' }.first
+      project_path.split('/').last
     end
 
     private :project_name

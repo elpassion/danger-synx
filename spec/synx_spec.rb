@@ -74,7 +74,7 @@ module Danger
         end
 
         it "should return a list of issues found in all projects" do
-          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj', 'B.xcodeproj'])
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj/project.pbxproj', 'B.xcodeproj/project.xcworkspace'])
           allow(@synx.git).to receive(:added_files).and_return([])
           expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return("warning: Warning.\nwarning: Another warning.\n")
           expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return("warning: Issue.\n")
@@ -89,15 +89,15 @@ module Danger
         end
 
         it "should trigger synx for modified project files" do
-          allow(@synx.git).to receive(:modified_files).and_return(['Project/Sources/AppDelegate.swift', 'Project/Project.xcodeproj'])
-          allow(@synx.git).to receive(:added_files).and_return(['Other Project/Other Project.xcodeproj', 'Other Project/Resources/image.png'])
+          allow(@synx.git).to receive(:modified_files).and_return(['Project/Sources/AppDelegate.swift', 'Project/Project.xcodeproj/project.pbxproj'])
+          allow(@synx.git).to receive(:added_files).and_return(['Other Project/Other Project.xcodeproj/project.pbxproj', 'Other Project/Resources/image.png/project.xcworkspace'])
           expect(@synx).to receive(:`).with('synx -w warning "Project/Project.xcodeproj"').and_return('')
           expect(@synx).to receive(:`).with('synx -w warning "Other Project/Other Project.xcodeproj"').and_return('')
           @synx.ensure_clean_structure
         end
 
         it "should output a warning with number of issues" do
-          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj', 'B.xcodeproj'])
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj/project.pbxproj', 'B.xcodeproj/project.xcworkspace'])
           allow(@synx.git).to receive(:added_files).and_return([])
           expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return("warning: Warning.\nwarning: Another warning.\n")
           expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return("warning: Issue.\n")
@@ -106,7 +106,7 @@ module Danger
         end
 
         it "should not output markdown when there are no issues" do
-          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj', 'B.xcodeproj'])
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj/project.pbxproj', 'B.xcodeproj/project.xcworkspace'])
           allow(@synx.git).to receive(:added_files).and_return([])
           expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return('')
           expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return('')
@@ -115,7 +115,7 @@ module Danger
         end
 
         it "should output table with issues as markdown" do
-          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj', 'B.xcodeproj'])
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj/project.pbxproj', 'B.xcodeproj/project.xcworkspace'])
           allow(@synx.git).to receive(:added_files).and_return([])
           expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return("warning: Warning.\nwarning: Another warning.\n")
           expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return("warning: Issue.\n")
