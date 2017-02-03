@@ -49,14 +49,14 @@ module Danger
       describe :precheck_synx_installation do
         it "should install synx if needed" do
           allow(@synx).to receive(:`).with('which synx').and_return('synx not found')
-          expect(@synx).to receive(:`).with('brew install synx')
+          expect(@synx).to receive(:`).with('gem install synx')
           @synx.precheck_synx_installation?
         end
 
         it "should upgrade synx if needed" do
           allow(@synx).to receive(:`).with('which synx').and_return('/bin/synx')
           allow(@synx).to receive(:`).with('synx --version').and_return('Synx 0.2.1')
-          expect(@synx).to receive(:`).with('brew upgrade synx')
+          expect(@synx).to receive(:`).with('gem update synx')
           @synx.precheck_synx_installation?
         end
 

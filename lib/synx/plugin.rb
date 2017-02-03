@@ -33,9 +33,9 @@ module Danger
     #
     def precheck_synx_installation?
       if not synx_installed?
-        `brew install synx`
+        `gem install synx`
       elsif not synx_required_version?
-        `brew upgrade synx`
+        `gem update synx`
       end
 
       synx_installed? and synx_required_version?
