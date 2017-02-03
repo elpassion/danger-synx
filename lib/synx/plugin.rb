@@ -110,9 +110,11 @@ module Danger
         warn("Synx detected #{issues.size} structural issue(s)")
 
         message = "### Synx structural issues\n\n"
+        message << "| Project file | Issue |\n"
+        message << "| --- | --- |\n"
 
         issues.each do |(project, issue)|
-          message << "#{project} | #{issue}"
+          message << "| #{project} | #{issue} |\n"
         end
 
         markdown message
