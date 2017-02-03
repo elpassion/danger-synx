@@ -32,31 +32,31 @@ module Danger
     # @return [bool]
     #
     def precheck_synx_installation?
-      if not synx_installed?
+      unless synx_installed?
         `gem install synx`
-      elsif not synx_required_version?
-        `gem update synx`
       end
 
-      synx_installed? and synx_required_version?
+      synx_installed?
     end
 
-    # Tests whether Synx is already installed.
+    # Returns a command to run for synx
+    #
+    # @return [String]
+    def synx
+      return "#{'bundle exec ' if File.exists?('Gemfile')}synx"
+    end
+
+    # Tests whether Synx is already installed and meets minimal
+    # version requirements.
     #
     # @return [bool]
     #
     def synx_installed?
-      `which synx`.strip.start_with? '/'
-    end
-
-    # Tests whether Synx meets > 0.2.1 version requirement.
-    #
-    # @return [bool]
-    #
-    def synx_required_version?
-      if match = `synx --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
+      if match = `#{synx} --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
         major, minor, patch = match.captures
-        Integer(major) >= 0 and Integer(minor) >= 2 and Integer(patch) > 1
+        Integer(major) > 0 || Integer(minor) > 2 || Integer(patch) > 1
+      else
+        false
       end
     end
 
@@ -73,37 +73,33 @@ module Danger
     # Triggers Synx in a dry-run mode on a project file.
     # Parses output and returns a list of issues.
     #
-    # @param  [String] modified_project_file_path
-    #         Path under .xcodeproj to Synx
+    # @param  [String] modified_file_path
+    #         Path of file contained in .xcodeproj to Synx
     #
     # @return [(String, String)]
     #
-    def synx_project(modified_project_file_path)
-      path = project_path modified_project_file_path
+    def synx_project(modified_file_path)
+      path = project_path modified_file_path
       name = project_name path
-      output = `synx -w warning "#{path}" 2>&1`.lines
+      output = `#{synx} -w warning "#{path}" 2>&1`.lines
       output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| [name, strip_prefix(o)] }
     end
 
-    def project_path(modified_project_file_path)
-      if match = modified_project_file_path.match('(.+\.xcodeproj)*+')
+    private
+
+    def project_path(modified_file_path)
+      if match = modified_file_path.match('(.+\.xcodeproj)*+')
         return match[0]
       end
     end
-
-    private :project_path
 
     def project_name(project_path)
       project_path.split('/').last
     end
 
-    private :project_name
-
     def strip_prefix(output_line)
       output_line.slice(9, output_line.size - 9)
     end
-
-    private :strip_prefix
 
     def generate_output(issues)
       if issues.count > 0
@@ -120,8 +116,6 @@ module Danger
         markdown message
       end
     end
-
-    private :generate_output
 
   end
 end

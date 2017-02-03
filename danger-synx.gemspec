@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Synx::VERSION
   spec.authors       = ['Jakub Turek']
   spec.email         = ['jkbturek@gmail.com']
-  spec.description   = %q{A short description of danger-synx.}
-  spec.summary       = %q{A longer description of danger-synx.}
+  spec.description   = %q{A Danger plugin for running commited .xcodeproj through Synx.}
+  spec.summary       = %q{A Danger plugin for running commited .xcodeproj through Synx.}
   spec.homepage      = 'https://github.com/Jakub Turek/danger-synx'
   spec.license       = 'MIT'
 
@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'danger-plugin-api', '~> 1.0'
+  spec.add_dependency 'synx'
 
   # General ruby development
   spec.add_development_dependency 'bundler', '~> 1.3'
