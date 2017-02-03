@@ -33,9 +33,9 @@ module Danger
     #
     def precheck_synx_installation?
       if not synx_installed?
-        `brew install synx`
+        `gem install synx`
       elsif not synx_required_version?
-        `brew upgrade synx`
+        `gem update synx`
       end
 
       synx_installed? and synx_required_version?
@@ -73,19 +73,28 @@ module Danger
     # Triggers Synx in a dry-run mode on a project file.
     # Parses output and returns a list of issues.
     #
-    # @param  [String] project_path
-    #         Path of .xcodeproj to Synx
+    # @param  [String] modified_project_file_path
+    #         Path under .xcodeproj to Synx
     #
     # @return [(String, String)]
     #
-    def synx_project(project_path)
-      name = project_name project_path
-      output = `synx -w warning "#{project_path}"`.lines
+    def synx_project(modified_project_file_path)
+      path = project_path modified_project_file_path
+      name = project_name path
+      output = `synx -w warning "#{path}" 2>&1`.lines
       output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| [name, strip_prefix(o)] }
     end
 
+    def project_path(modified_project_file_path)
+      if match = modified_project_file_path.match('(.+\.xcodeproj)*+')
+        return match[0]
+      end
+    end
+
+    private :project_path
+
     def project_name(project_path)
-      project_path.split('/').select { |p| p.end_with? '.xcodeproj' }.first
+      project_path.split('/').last
     end
 
     private :project_name
@@ -97,13 +106,15 @@ module Danger
     private :strip_prefix
 
     def generate_output(issues)
-      warn("Synx detected #{issues.size} structural issue(s)")
-
       if issues.count > 0
+        warn("Synx detected #{issues.size} structural issue(s)")
+
         message = "### Synx structural issues\n\n"
+        message << "| Project file | Issue |\n"
+        message << "| --- | --- |\n"
 
         issues.each do |(project, issue)|
-          message << "#{project} | #{issue}"
+          message << "| #{project} | #{issue} |\n"
         end
 
         markdown message
