@@ -81,7 +81,7 @@ module Danger
     def synx_project(modified_project_file_path)
       path = project_path modified_project_file_path
       name = project_name path
-      output = `synx -w warning "#{path}"`.lines
+      output = `synx -w warning "#{path}" 2>&1`.lines
       output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| [name, strip_prefix(o)] }
     end
 
