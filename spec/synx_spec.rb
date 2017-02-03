@@ -105,6 +105,15 @@ module Danger
           @synx.ensure_clean_structure
         end
 
+        it "should not output warning if there are no issues" do
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj/project.pbxproj', 'B.xcodeproj/project.xcworkspace'])
+          allow(@synx.git).to receive(:added_files).and_return([])
+          expect(@synx).to receive(:`).with('synx -w warning "A.xcodeproj"').and_return('')
+          expect(@synx).to receive(:`).with('synx -w warning "B.xcodeproj"').and_return('')
+          expect(@synx).to_not receive(:warn)
+          @synx.ensure_clean_structure
+        end
+
         it "should not output markdown when there are no issues" do
           allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj/project.pbxproj', 'B.xcodeproj/project.xcworkspace'])
           allow(@synx.git).to receive(:added_files).and_return([])

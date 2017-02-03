@@ -106,9 +106,9 @@ module Danger
     private :strip_prefix
 
     def generate_output(issues)
-      warn("Synx detected #{issues.size} structural issue(s)")
-
       if issues.count > 0
+        warn("Synx detected #{issues.size} structural issue(s)")
+
         message = "### Synx structural issues\n\n"
 
         issues.each do |(project, issue)|
