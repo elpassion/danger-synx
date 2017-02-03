@@ -18,7 +18,7 @@ module Danger
     #
     def ensure_clean_structure
       unless precheck_synx_installation?
-        fail "synx > 0.2.1 is not in the user's PATH and has failed to install with brew"
+        fail "synx > 0.2.1 is not in the user's PATH and has failed to install with gem"
         return
       end
 
