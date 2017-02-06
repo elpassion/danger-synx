@@ -8,8 +8,10 @@ Currently only Bundler installations are supported. Add following contents to yo
 
     gem 'danger-synx'
     gem 'synx', :github => 'turekj/synx', :branch => 'v0.3'
+    
+And run `bundle install`. 
 
-The plugin relies on a Synx fork because [PR #125](https://github.com/venmo/synx/pull/125) is not yet merged.
+The plugin relies on a Synx fork because [PR #125](https://github.com/venmo/synx/pull/125) is not yet merged with the core app.
 
 ## Usage
 
