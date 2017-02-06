@@ -1,6 +1,7 @@
 module Danger
   # Enforces that .xcodeproj structure is tidy.
-  # It wraps around [Synx](https://github.com/venmo/synx) tool to perform the check.
+  # It wraps around [Synx](https://github.com/venmo/synx)
+  # tool to perform the check.
   #
   # @example Ensure that all added / modified project files are synchronized
   #
@@ -43,7 +44,7 @@ module Danger
     #
     # @return [String]
     def synx
-      "#{'bundle exec ' if File.exists?('Gemfile')}synx"
+      "#{'bundle exec ' if File.exist?('Gemfile')}synx"
     end
 
     # Tests whether Synx is already installed and meets minimal

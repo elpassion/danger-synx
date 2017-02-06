@@ -14,19 +14,19 @@ module Danger
 
       describe :synx do
         it "should return synx when Gemfile is not present" do
-          allow(File).to receive(:exists?).with('Gemfile').and_return(false)
+          allow(File).to receive(:exist?).with('Gemfile').and_return(false)
           expect(@synx.synx).to eq('synx')
         end
 
         it "should return bundle exec synx when Gemfile is present" do
-          allow(File).to receive(:exists?).with('Gemfile').and_return(true)
+          allow(File).to receive(:exist?).with('Gemfile').and_return(true)
           expect(@synx.synx).to eq('bundle exec synx')
         end
       end
 
       describe :synx_installed? do
         before do
-          allow(File).to receive(:exists?).with('Gemfile').and_return(true)
+          allow(File).to receive(:exist?).with('Gemfile').and_return(true)
         end
 
         it "reports that synx is not installed if executable is not found" do
@@ -62,7 +62,7 @@ module Danger
 
       describe :precheck_synx_installation do
         before do
-          allow(File).to receive(:exists?).with('Gemfile').and_return(true)
+          allow(File).to receive(:exist?).with('Gemfile').and_return(true)
         end
 
         it "should install synx if needed" do
@@ -79,7 +79,7 @@ module Danger
 
       describe :synx_issues do
         before do
-          allow(File).to receive(:exists?).with('Gemfile').and_return(true)
+          allow(File).to receive(:exist?).with('Gemfile').and_return(true)
           allow(@synx).to receive(:`).with('bundle exec synx --version').and_return('Synx 0.3.0')
         end
 
@@ -94,7 +94,7 @@ module Danger
 
       describe :ensure_clean_structure do
         before do
-          allow(File).to receive(:exists?).with('Gemfile').and_return(true)
+          allow(File).to receive(:exist?).with('Gemfile').and_return(true)
           allow(@synx).to receive(:`).with('bundle exec synx --version').and_return('Synx 0.3.0')
         end
 
