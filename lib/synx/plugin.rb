@@ -54,7 +54,7 @@ module Danger
     def synx_installed?
       if match = `#{synx} --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
         major, minor, patch = match.captures
-        Integer(major) > 0 || Integer(minor) > 2 || Integer(patch) > 1
+        Integer(major) > 0 || Integer(minor) > 2 || (Integer(minor) == 2 && Integer(patch) > 1)
       else
         false
       end
