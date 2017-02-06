@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['jkbturek@gmail.com']
   spec.description   = %q{A Danger plugin for running commited .xcodeproj through Synx.}
   spec.summary       = %q{A Danger plugin for running commited .xcodeproj through Synx.}
-  spec.homepage      = 'https://github.com/Jakub Turek/danger-synx'
+  spec.homepage      = 'https://github.com/elpassion/danger-synx'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)
