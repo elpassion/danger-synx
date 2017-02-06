@@ -34,6 +34,11 @@ module Danger
           expect(@synx.synx_installed?).to be_falsy
         end
 
+        it "reports that synx is not installed if version is 0.1.5" do
+          allow(@synx).to receive(:`).with('bundle exec synx --version').and_return('Synx 0.1.5')
+          expect(@synx.synx_installed?).to be_falsy
+        end
+
         it "reports that synx is not installed if version is 0.2.1" do
           allow(@synx).to receive(:`).with('bundle exec synx --version').and_return('Synx 0.2.1')
           expect(@synx.synx_installed?).to be_falsy
