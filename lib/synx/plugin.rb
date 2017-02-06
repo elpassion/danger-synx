@@ -1,6 +1,7 @@
 module Danger
   # Enforces that .xcodeproj structure is tidy.
-  # It wraps around [Synx](https://github.com/venmo/synx) tool to perform the check.
+  # It wraps around [Synx](https://github.com/venmo/synx)
+  # tool to perform the check.
   #
   # @example Ensure that all added / modified project files are synchronized
   #
@@ -10,16 +11,14 @@ module Danger
   # @tags synx, xcodeproj
   #
   class DangerSynx < Plugin
-
     # Ensures clean project structure. Runs Synx on all .xcodeproj
     # files that where either added or modified.
     #
     # @return   [void]
     #
     def ensure_clean_structure
-      unless precheck_synx_installation?
-        fail "synx > 0.2.1 is not in the user's PATH and has failed to install with gem"
-        return
+      unless synx_installed?
+        raise 'synx > 0.2.1 not found in PATH and failed to install'
       end
 
       generate_output synx_issues
@@ -32,10 +31,7 @@ module Danger
     # @return [bool]
     #
     def precheck_synx_installation?
-      unless synx_installed?
-        `gem install synx`
-      end
-
+      `gem install synx` unless synx_installed?
       synx_installed?
     end
 
@@ -43,7 +39,7 @@ module Danger
     #
     # @return [String]
     def synx
-      return "#{'bundle exec ' if File.exists?('Gemfile')}synx"
+      "#{'bundle exec ' if File.exist?('Gemfile')}synx"
     end
 
     # Tests whether Synx is already installed and meets minimal
@@ -52,9 +48,10 @@ module Danger
     # @return [bool]
     #
     def synx_installed?
-      if match = `#{synx} --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
-        major, minor, patch = match.captures
-        Integer(major) > 0 || Integer(minor) > 2 || (Integer(minor) == 2 && Integer(patch) > 1)
+      match = `#{synx} --version`.match(/Synx (\d+)\.(\d+)\.(\d+)/i)
+      if match
+        major, minor, patch = match.captures.map { |c| Integer(c) }
+        major > 0 || minor > 2 || (minor == 2 && patch > 1)
       else
         false
       end
@@ -67,7 +64,9 @@ module Danger
     # @return [Array<(String, String)>]
     #
     def synx_issues
-      (git.modified_files + git.added_files).select { |f| f.include? '.xcodeproj' }.reduce([]) { |i, f| i + synx_project(f) }
+      (git.modified_files + git.added_files)
+        .select { |f| f.include? '.xcodeproj' }
+        .reduce([]) { |i, f| i + synx_project(f) }
     end
 
     # Triggers Synx in a dry-run mode on a project file.
@@ -82,15 +81,17 @@ module Danger
       path = project_path modified_file_path
       name = project_name path
       output = `#{synx} -w warning "#{path}" 2>&1`.lines
-      output.map(&:strip).select { |o| o.start_with? 'warning: ' }.map { |o| [name, strip_prefix(o)] }
+      output
+        .map(&:strip)
+        .select { |o| o.start_with? 'warning: ' }
+        .map { |o| [name, strip_prefix(o)] }
     end
 
     private
 
     def project_path(modified_file_path)
-      if match = modified_file_path.match('(.+\.xcodeproj)*+')
-        return match[0]
-      end
+      match = modified_file_path.match('(.+\.xcodeproj)*+')
+      match[0] if match
     end
 
     def project_name(project_path)
@@ -102,19 +103,19 @@ module Danger
     end
 
     def generate_output(issues)
-      if issues.count > 0
-        warn("Synx detected #{issues.size} structural issue(s)")
+      return if issues.empty?
 
-        message = "### Synx structural issues\n\n"
-        message << "| Project file | Issue |\n"
-        message << "| --- | --- |\n"
+      warn("Synx detected #{issues.size} structural issue(s)")
 
-        issues.each do |(project, issue)|
-          message << "| #{project} | #{issue} |\n"
-        end
+      message = "### Synx structural issues\n\n"
+      message << "| Project file | Issue |\n"
+      message << "| --- | --- |\n"
 
-        markdown message
+      issues.each do |(project, issue)|
+        message << "| #{project} | #{issue} |\n"
       end
+
+      markdown message
     end
 
   end
