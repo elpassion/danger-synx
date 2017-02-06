@@ -43,7 +43,7 @@ module Danger
     #
     # @return [String]
     def synx
-      return "#{'bundle exec ' if File.exists?('Gemfile')}synx"
+      "#{'bundle exec ' if File.exists?('Gemfile')}synx"
     end
 
     # Tests whether Synx is already installed and meets minimal
@@ -89,7 +89,7 @@ module Danger
 
     def project_path(modified_file_path)
       if match = modified_file_path.match('(.+\.xcodeproj)*+')
-        return match[0]
+        match[0]
       end
     end
 
