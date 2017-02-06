@@ -1,6 +1,6 @@
 # Danger Synx
 
-A Danger plugin for [synx](https://github.com/venmo/synx/). 
+A Danger plugin for [Synx](https://github.com/venmo/synx/). 
 
 ## Installation
 
@@ -8,6 +8,8 @@ Currently only Bundler installations are supported. Add following contents to yo
 
     gem 'danger-synx'
     gem 'synx', :github => 'turekj/synx', :branch => 'v0.3'
+
+The plugin relies on a Synx fork because [PR #125](https://github.com/venmo/synx/pull/125) is not yet merged.
 
 ## Usage
 
