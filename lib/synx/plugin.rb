@@ -11,6 +11,17 @@ module Danger
   # @tags synx, xcodeproj
   #
   class DangerSynx < Plugin
+
+    # Control '--no-sort-by-name' parameter
+    #
+    # @attr_writer Bool no_sort_by_name Should synx enable '--no-sort-by-name' parameter
+    #
+    attr_writer :no_sort_by_name
+
+    def no_sort_by_name
+      @no_sort_by_name || false
+    end
+
     # Ensures clean project structure. Runs Synx on all .xcodeproj
     # files that where either added or modified.
     #
@@ -80,7 +91,7 @@ module Danger
     def synx_project(modified_file_path)
       path = project_path modified_file_path
       name = project_name path
-      output = `#{synx} -w warning "#{path}" 2>&1`.lines
+      output = `#{synx} -w warning #{"--no-sort-by-name " if no_sort_by_name}"#{path}" 2>&1`.lines
       output
         .map(&:strip)
         .select { |o| o.start_with? 'warning: ' }
