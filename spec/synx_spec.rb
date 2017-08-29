@@ -115,6 +115,16 @@ module Danger
           @synx.ensure_clean_structure
         end
 
+        it 'should add no sort by name parameter and output a warning with number of issues' do
+          allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj/project.pbxproj', 'B.xcodeproj/project.xcworkspace'])
+          allow(@synx.git).to receive(:added_files).and_return([])
+          expect(@synx).to receive(:`).with('bundle exec synx -w warning --no-sort-by-name "A.xcodeproj" 2>&1').and_return("warning: Warning.\nwarning: Another warning.\n")
+          expect(@synx).to receive(:`).with('bundle exec synx -w warning --no-sort-by-name "B.xcodeproj" 2>&1').and_return("warning: Issue.\n")
+          expect(@synx).to receive(:warn).with('Synx detected 3 structural issue(s)')
+          @synx.no_sort_by_name = true
+          @synx.ensure_clean_structure
+        end
+
         it 'should not output warning if there are no issues' do
           allow(@synx.git).to receive(:modified_files).and_return(['A.xcodeproj/project.pbxproj', 'B.xcodeproj/project.xcworkspace'])
           allow(@synx.git).to receive(:added_files).and_return([])
