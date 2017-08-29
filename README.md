@@ -32,7 +32,7 @@ Add following line to the `Dangerfile`:
 - [ ] Indicate unused files (`--prune`).
 - [ ] Allow custom exclusions for directories (`--exclusion`).
 - [ ] Support for toggleable unsorted group reports (`--no-sort-by-name`).
-- [ ] Support for `--no-sort-by-name` option.
+- [x] Support for `--no-sort-by-name` option.
 
 ## Development
 
